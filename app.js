@@ -25,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, email, password, gender, role, avatar } = req.body; // Added gender, role, and avatar
+  logger.info("Received registration request:", req.body);
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
