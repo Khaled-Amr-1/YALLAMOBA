@@ -37,6 +37,10 @@ app.get("/users", async (req, res) => {
 app.post("/register", async (req, res) => {
   const { username, email, password, repassword, gender, role, avatar } = req.body; // Added gender, role, and avatar
   try {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
     if(!username || !email || !password || !gender || !role || !avatar){
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -81,28 +85,31 @@ app.post("/register", async (req, res) => {
   }
 });
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  if( !email || !password ){
-    return res.status(400).json({ error: "email and password are required" });
+  const { identifier, password } = req.body; // Use "identifier" instead of "email" to support email or username
+  if (!identifier || !password) {
+    return res.status(400).json({ error: "Identifier (email or username) and password are required" });
   }
 
   try {
+    // Query the database to check if the identifier matches either email or username
     const result = await pool.query(
-      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1",
-      [email]
+      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1 OR username = $1",
+      [identifier]
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Wrong email, username, or password!" });
     }
 
     const user = result.rows[0]; // Extract the user data from the query result
 
+    // Verify the password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Wrong email, username, or password!" });
     }
 
+    // Generate a token for the user
     const UserToken = jwt.sign(
       { userId: user.id },
       JWT_SECRET,
