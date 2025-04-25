@@ -23,6 +23,17 @@ app.get("/", (req, res) => {
 }
 );
 
+app.get("/users", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM users");
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 app.post("/register", async (req, res) => {
   const { username, email, password, gender, role, avatar } = req.body; // Added gender, role, and avatar
   try {
