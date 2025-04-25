@@ -87,7 +87,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { identifier, password } = req.body; // Use "identifier" instead of "email" to support email or username
   if (!identifier || !password) {
-    return res.status(400).json({ error: "Identifier (email or username) and password are required" });
+    return res.status(400).json({ error: " (email or username) and password are required" });
   }
 
   try {
