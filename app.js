@@ -18,6 +18,11 @@ const pool = new Pool({
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the API");
+}
+);
+
 app.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
