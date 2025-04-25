@@ -39,47 +39,76 @@ app.post("/register", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+      "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, gender, role, avatar",
       [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
     );
+
+    const user = result.rows[0]; // Extract the user data from the query result
+
     const token = jwt.sign(
-      { userId: result.rows[0].id },
+      { userId: user.id },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "3000h" }
     );
-    res.status(201).json({ userId: result.rows[0].id, token });
+
+    // Return the user data and the token
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        gender: user.gender,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" + error});
+    res.status(500).json({ error: "Internal server error: " + error });
   }
 });
-
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const result = await pool.query(
+      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1",
+      [email]
+    );
 
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const user = result.rows[0];
+    const user = result.rows[0]; // Extract the user data from the query result
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
-      expiresIn: "1h",
+    const token = jwt.sign(
+      { userId: user.id },
+      JWT_SECRET,
+      { expiresIn: "3000h" }
+    );
+
+    // Return the user data and the token
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        gender: user.gender,
+        role: user.role,
+        avatar: user.avatar,
+      },
     });
-    res.json({ token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error: " + error });
   }
 });
 
