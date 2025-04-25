@@ -43,18 +43,18 @@ app.post("/register", async (req, res) => {
       [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
     );
 
-    const user = result.rows[0]; // Extract the user data from the query result
+    const UserData = result.rows[0]; // Extract the user data from the query result
 
-    const token = jwt.sign(
-      { userId: user.id },
+    const UserToken = jwt.sign(
+      { userId: UserData.id },
       JWT_SECRET,
       { expiresIn: "3000h" }
     );
 
     // Return the user data and the token
     res.status(201).json({
-      token,
-      user: {
+      UserToken,
+      UserData: {
         username: user.username,
         email: user.email,
         gender: user.gender,
@@ -80,23 +80,23 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const user = result.rows[0]; // Extract the user data from the query result
+    const UserData = result.rows[0]; // Extract the user data from the query result
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-      { userId: user.id },
+    const UserToken = jwt.sign(
+      { userId: UserData.id },
       JWT_SECRET,
       { expiresIn: "3000h" }
     );
 
     // Return the user data and the token
     res.json({
-      token,
-      user: {
+      UserToken,
+      UserData: {
         username: user.username,
         email: user.email,
         gender: user.gender,
