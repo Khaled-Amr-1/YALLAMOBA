@@ -55,7 +55,6 @@ app.post("/register", async (req, res) => {
     res.status(201).json({
       token,
       user: {
-        id: user.id,
         username: user.username,
         email: user.email,
         gender: user.gender,
@@ -98,7 +97,6 @@ app.post("/login", async (req, res) => {
     res.json({
       token,
       user: {
-        id: user.id,
         username: user.username,
         email: user.email,
         gender: user.gender,
