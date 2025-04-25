@@ -37,6 +37,7 @@ app.get("/users", async (req, res) => {
 app.post("/register", async (req, res) => {
   const { username, email, password, repassword, gender, role, avatar } = req.body; // Added gender, role, and avatar
   try {
+    // if(!username || e\)
     if(password != repassword){
       return res.status(400).json({ error: "Passwords do not match" });
     }
