@@ -35,8 +35,12 @@ app.get("/users", async (req, res) => {
 
 
 app.post("/register", async (req, res) => {
-  const { username, email, password, gender, role, avatar } = req.body; // Added gender, role, and avatar
+  const { username, email, password, repassword, gender, role, avatar } = req.body; // Added gender, role, and avatar
   try {
+    if(password != repassword){
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, gender, role, avatar",
