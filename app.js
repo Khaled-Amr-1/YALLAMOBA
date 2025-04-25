@@ -2,10 +2,18 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cors = require("cors"); // Import cors
+
 const { Pool } = require("pg");
 require("dotenv").config();
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:3000", // Allow requests from localhost:3000
+  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
+  credentials: true // Allow sending cookies or authentication headers
+}));
+
 app.use(bodyParser.json());
 
 const pool = new Pool({
