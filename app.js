@@ -37,7 +37,9 @@ app.get("/users", async (req, res) => {
 app.post("/register", async (req, res) => {
   const { username, email, password, repassword, gender, role, avatar } = req.body; // Added gender, role, and avatar
   try {
-    // if(!username || e\)
+    if(!username || !email || !password || !gender || !role || !avatar){
+      return res.status(400).json({ error: "All fields are required" });
+    }
     if(password != repassword){
       return res.status(400).json({ error: "Passwords do not match" });
     }
@@ -74,6 +76,9 @@ app.post("/register", async (req, res) => {
 });
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  if( !email || !password ){
+    return res.status(400).json({ error: "All fields are required" });
+  }
 
   try {
     const result = await pool.query(
