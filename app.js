@@ -40,6 +40,12 @@ app.post("/register", async (req, res) => {
     if(!username || !email || !password || !gender || !role || !avatar){
       return res.status(400).json({ error: "All fields are required" });
     }
+    if(username.length < 6){
+      return res.status(400).json({error: "username must be at least 6 characters long"})
+    }
+    if(password.length < 8){
+      return res.status(400).json({ error: "Password must be at least 8 characters long" });
+    }
     if(password != repassword){
       return res.status(400).json({ error: "Passwords do not match" });
     }
@@ -77,7 +83,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if( !email || !password ){
-    return res.status(400).json({ error: "All fields are required" });
+    return res.status(400).json({ error: "email and password are required" });
   }
 
   try {
