@@ -24,13 +24,13 @@ app.get("/", (req, res) => {
 );
 
 app.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, gender, role, avatar } = req.body; // Added gender, role, and avatar
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id",
-      [username, email, hashedPassword]
+      "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+      [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
     );
     const token = jwt.sign(
       { userId: result.rows[0].id },
