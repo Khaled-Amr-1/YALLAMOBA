@@ -25,8 +25,6 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, email, password, gender, role, avatar } = req.body; // Added gender, role, and avatar
-  logger.info("Received registration request:", req.body);
-
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
@@ -41,7 +39,7 @@ app.post("/register", async (req, res) => {
     res.status(201).json({ userId: result.rows[0].id, token });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" + error});
   }
 });
 
