@@ -6,6 +6,7 @@ This API provides functionality for user registration, login, and protected rout
 
 ## Base URL:
 - **Local Development**: `http://localhost:3000`
+- **Production**: `https://yallamoba.vercel.app/`
 
 ---
 
