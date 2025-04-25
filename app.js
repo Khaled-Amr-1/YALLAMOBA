@@ -43,10 +43,10 @@ app.post("/register", async (req, res) => {
       [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
     );
 
-    const UserData = result.rows[0]; // Extract the user data from the query result
+    const user = result.rows[0]; // Extract the user data from the query result
 
     const UserToken = jwt.sign(
-      { userId: UserData.id },
+      { userId: user.id },
       JWT_SECRET,
       { expiresIn: "3000h" }
     );
@@ -80,7 +80,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const UserData = result.rows[0]; // Extract the user data from the query result
+    const user = result.rows[0]; // Extract the user data from the query result
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
@@ -88,7 +88,7 @@ app.post("/login", async (req, res) => {
     }
 
     const UserToken = jwt.sign(
-      { userId: UserData.id },
+      { userId: user.id },
       JWT_SECRET,
       { expiresIn: "3000h" }
     );
