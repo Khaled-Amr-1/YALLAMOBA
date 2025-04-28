@@ -63,6 +63,11 @@ app.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if the email already exists
+    const emailCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (emailCheck.rows.length > 0) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
     const result = await pool.query(
       "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, gender, role, avatar",
       [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
