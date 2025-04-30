@@ -92,7 +92,7 @@ router.post("/login", async (req, res) => {
   try {
     // Query the database to check if the identifier matches either email or username
     const result = await pool.query(
-      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1 OR username = $1 RETURNING id, username, email, gender, role, avatar, uid, mobacoin, popularity",
+      "SELECT id, username, email, password, gender, role, avatar, uid, mobacoin, popularity FROM users WHERE email = $1 OR username = $1",
       [identifier]
     );
 
