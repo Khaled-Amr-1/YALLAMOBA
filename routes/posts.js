@@ -15,7 +15,7 @@ router.get("/posts/:uid", async (req, res) => {
     try {
         // Query the posts table for posts by the given user ID (uid)
         const result = await pool.query(
-            "SELECT id, body, files, created_at, updated_at FROM posts WHERE user_id = $1",
+            "SELECT  body, files, created_at, updated_at FROM posts WHERE user_id = $1",
             [parsedUid] // Use the parsed uid
         );
 
@@ -24,7 +24,7 @@ router.get("/posts/:uid", async (req, res) => {
         }
 
         // Return the posts as a response
-        res.status(200).json({ posts: result.rows });
+        res.status(200).json({ userPosts: result.rows, ownerData:{} });
     } catch (error) {
         console.error("Error fetching posts:", error);
         res.status(500).json({ error: "Internal server error" });
