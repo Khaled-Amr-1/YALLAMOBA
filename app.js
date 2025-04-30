@@ -6,6 +6,7 @@ import cors from "cors"; // Import cors
 import pkg from 'pg';
 const { Pool } = pkg;
 import dotenv from "dotenv";
+import { authenticateToken } from "./middleware/authenticateToken.js"; // Import the authentication middleware
 
 dotenv.config();
 
@@ -148,22 +149,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-function authenticateToken(req, res, next) {
-    const token = req.headers["authorization"]?.split(" ")[1]; // Get token without "Bearer"
-    if (!token) {
-      console.error("No token provided");
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-  
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) {
-        console.error("Token verification failed:", err);
-        return res.status(403).json({ error: "Forbidden" });
-      }
-      req.user = user;
-      next();
-    });
-  }
+
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route", userId: req.user.userId });
 });
