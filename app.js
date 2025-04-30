@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use("/api", userRoutes); // Use the user routes
 
 app.get("/protected", authenticateToken, (req, res) => {
-  res.json({ message: "This is a protected route", userId: req.user.userId , xxid: req.user.uid , data: req.user });
+  res.json({ message: "This is a protected route", userId: req.user.userId , uid: req.user.UID});
 });
 
 const PORT = process.env.PORT || 3000;
