@@ -3,7 +3,8 @@ import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cors from "cors"; // Import cors
-import { Pool } from "pg";
+import pkg from 'pg';
+const { Pool } = pkg;
 import dotenv from "dotenv";
 
 dotenv.config();
