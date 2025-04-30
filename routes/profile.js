@@ -10,5 +10,5 @@ router.get("test", async (req, res) => {
 );
 
 
-export default router;
+export default profileRoutes;
 
