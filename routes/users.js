@@ -58,7 +58,7 @@ router.post("/register", async (req, res) => {
 
     const user = result.rows[0]; // Extract the user data from the query result
 
-    const UserToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
+    const UserToken = jwt.sign({ userId: user.id, UID: user.uid }, JWT_SECRET, {
       expiresIn: "3000h",
     });
 
@@ -113,7 +113,7 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate a token for the user
-    const UserToken = jwt.sign({ userId: user.id }, JWT_SECRET, {
+    const UserToken = jwt.sign({ userId: user.id, UID: user.id }, JWT_SECRET, {
       expiresIn: "3000h",
     });
 

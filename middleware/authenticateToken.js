@@ -13,6 +13,8 @@ export function authenticateToken(req, res, next) {
         console.error("Token verification failed:", err);
         return res.status(403).json({ error: "Forbidden" });
       }
+      console.log("Token verified successfully:", user);
+      
       req.user = user;
       next();
     });
