@@ -1,25 +1,23 @@
 import express from "express";
 import bodyParser from "body-parser";
 import userRoutes from "./routes/users.js"; // Import the user routes
-
 import cors from "cors"; // Import cors
-// import pkg from 'pg';
-// const { Pool } = pkg;
 import dotenv from "dotenv";
 import { authenticateToken } from "./middleware/authenticateToken.js"; // Import the authentication middleware
 
 dotenv.config();
 
 const app = express();
-app.use(cors({
-  origin: "http://localhost:3000", // Allow requests from localhost:3000
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-  credentials: true // Allow sending cookies or authentication headers
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow requests from localhost:3000
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
+    credentials: true, // Allow sending cookies or authentication headers
+  })
+);
 
 app.use(bodyParser.json());
 
-// const pool = new Pool({
 //   user: process.env.DB_USER,
 //   host: process.env.DB_HOST,
 //   database: process.env.DB_NAME,
@@ -27,12 +25,8 @@ app.use(bodyParser.json());
 //   port: process.env.DB_PORT,
 // });
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 app.use("/api", userRoutes); // Use the user routes
 
-
-// app.get("/users", async (req, res) => {
 //   try {
 //     const result = await pool.query("SELECT * FROM users");
 //     res.json(result.rows);
@@ -41,7 +35,6 @@ app.use("/api", userRoutes); // Use the user routes
 //     res.status(500).json({ error: "Internal server error" + error});
 //   }
 // });
-
 
 // app.post("/register", async (req, res) => {
 //   const { username, email, password, repassword, gender, role, avatar } = req.body; // Added gender, role, and avatar
@@ -147,11 +140,9 @@ app.use("/api", userRoutes); // Use the user routes
 //   }
 // });
 
-
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route", userId: req.user.userId });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
