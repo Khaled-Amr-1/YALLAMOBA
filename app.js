@@ -1,11 +1,12 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const cors = require("cors"); // Import cors
+import express from "express";
+import bodyParser from "body-parser";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import cors from "cors"; // Import cors
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
-const { Pool } = require("pg");
-require("dotenv").config();
+dotenv.config();
 
 const app = express();
 app.use(cors({
