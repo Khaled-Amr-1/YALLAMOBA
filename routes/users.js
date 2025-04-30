@@ -7,15 +7,6 @@ import dotenv from "dotenv";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-router.get("/users", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" + error });
-  }
-});
 
 router.post("/register", async (req, res) => {
   const { username, email, password, repassword, gender, role, avatar } =

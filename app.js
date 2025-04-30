@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import userRoutes from "./routes/users.js"; // Import the user routes
+import profileRoutes from "./routes/profile.js"; // Import the user routes
+
 import cors from "cors"; // Import cors
 import dotenv from "dotenv";
 import { authenticateToken } from "./middleware/authenticateToken.js"; // Import the authentication middleware
@@ -19,6 +21,7 @@ app.use(
 app.use(bodyParser.json());
 
 app.use("/api", userRoutes); // Use the user routes
+app.use("/api",authenticateToken, profileRoutes); // Use the user routes
 
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route", userId: req.user.userId , uid: req.user.UID});
