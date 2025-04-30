@@ -52,7 +52,7 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email already exists" });
     }
     const result = await pool.query(
-      "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, gender, role, avatar",
+      "INSERT INTO users (username, email, password, gender, role, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, gender, role, avatar, uid, mobacoin, popularity",
       [username, email, hashedPassword, gender, role, avatar] // Added the new fields here
     );
 
@@ -92,7 +92,7 @@ router.post("/login", async (req, res) => {
   try {
     // Query the database to check if the identifier matches either email or username
     const result = await pool.query(
-      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1 OR username = $1",
+      "SELECT id, username, email, password, gender, role, avatar FROM users WHERE email = $1 OR username = $1 RETURNING id, username, email, gender, role, avatar, uid, mobacoin, popularity",
       [identifier]
     );
 
