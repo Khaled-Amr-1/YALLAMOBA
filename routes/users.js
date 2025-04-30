@@ -71,6 +71,9 @@ router.post("/register", async (req, res) => {
         gender: user.gender,
         role: user.role,
         avatar: user.avatar,
+        UID: user.uid,
+        mobaCoin: user.mobacoin,
+        popularity: user.popularity,
       },
     });
   } catch (error) {
@@ -123,6 +126,9 @@ router.post("/login", async (req, res) => {
         gender: user.gender,
         role: user.role,
         avatar: user.avatar,
+        UID: user.uid,
+        mobaCoin: user.mobacoin,
+        popularity: user.popularity,
       },
     });
   } catch (error) {
@@ -132,3 +138,4 @@ router.post("/login", async (req, res) => {
 });
 
 export default router;
+
