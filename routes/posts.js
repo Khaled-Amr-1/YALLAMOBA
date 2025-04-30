@@ -8,3 +8,4 @@ router.get("/posts/", async (req, res) => {
     res.json({ message: "This is posts" })});
 
 export default router;
+//comment
