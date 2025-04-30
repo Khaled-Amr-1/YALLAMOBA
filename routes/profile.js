@@ -20,7 +20,7 @@ router.get("/profile/:uid", async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
         const user = result.rows[0];
-        res.status(200).json(user);
+        res.status(200).json({ownerData: user, ownerPosts: []});
     } catch (error) {
         console.error("Error fetching user profile:", error);
         res.status(500).json({ error: "Internal server error" });
