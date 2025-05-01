@@ -30,7 +30,7 @@ router.get("/profile/:uid", async (req, res) => {
       );
   
       const ownerPosts = postsResult.rows;
-  
+      delete user.id;
       res.status(200).json({ ownerData: user, ownerPosts });
     } catch (error) {
       console.error("Error fetching user profile:", error);
