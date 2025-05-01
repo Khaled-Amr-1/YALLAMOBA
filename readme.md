@@ -1,223 +1,232 @@
 # API Documentation
 
-This API provides functionality for user registration, login, and protected routes. Below is the detailed documentation of the endpoints and how to use them.
+This document provides an overview of the API endpoints for managing users, posts, and profiles. It includes examples of requests and responses for easy integration with the frontend.
 
 ---
 
-## Base URL:
-- **Local Development**: `http://localhost:3000`
-- **Production**: `https://yallamoba.vercel.app/`
-
----
-
-## General Information:
-- The API uses JWT for authentication.
-- CORS is enabled for requests from `http://localhost:3000`.
-- All endpoints accept and respond with JSON data.
-
----
-
-## Endpoints:
-
-### 1. `GET /`
-**Description**: Welcome route to verify if the API is running.
-
-**Response**:
-```json
-{
-  "message": "Welcome to the API"
-}
+## **Authentication**
+### **Token Usage**
+All endpoints (except `/register` and `/login`) require a valid JWT token to be provided in the `Authorization` header. Format:
+```
+Authorization: Bearer <JWT_TOKEN>
 ```
 
 ---
 
-### 2. `GET /users`
-**Description**: Fetch a list of all users.
+## **Users API**
+### **Register a New User**
+**Endpoint:** `POST /register`
 
-**Response**:
-Returns an array of user objects (excluding sensitive information like passwords).
+**Description:** Create a new user account.
 
-**Example Response**:
-```json
-[
-  {
-    "id": 1,
-    "username": "john_doe",
-    "email": "john@example.com",
-    "gender": "male",
-    "role": "user",
-    "avatar": "https://example.com/avatar.jpg"
-  }
-]
-```
-
----
-
-### 3. `POST /register`
-**Description**: Register a new user.
-
-**Request Body**:
+**Request Body:**
 ```json
 {
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "securepassword",
-  "repassword": "securepassword",
+  "username": "exampleuser",
+  "email": "example@example.com",
+  "password": "password123",
+  "repassword": "password123",
   "gender": "male",
   "role": "user",
   "avatar": "https://example.com/avatar.jpg"
 }
 ```
 
-**Validation Rules**:
-- `username`: Must be at least 6 characters long.
-- `password`: Must be at least 8 characters long.
-- `repassword`: Must match the `password`.
-- `email`: Must be a valid email format.
-- All fields are required.
-
-**Response**:
-Returns a token and user data.
-
-**Example Response**:
+**Response:**
 ```json
 {
-  "UserToken": "your.jwt.token.here",
+  "UserToken": "<JWT_TOKEN>",
   "UserData": {
-    "username": "john_doe",
-    "email": "john@example.com",
+    "username": "exampleuser",
+    "email": "example@example.com",
     "gender": "male",
     "role": "user",
-    "avatar": "https://example.com/avatar.jpg"
+    "avatar": "https://example.com/avatar.jpg",
+    "UID": "1000001",
+    "mobaCoin": 0,
+    "popularity": 0
   }
 }
 ```
 
 ---
 
-### 4. `POST /login`
-**Description**: Log in a user using their email or username and password.
+### **Login**
+**Endpoint:** `POST /login`
 
-**Request Body**:
+**Description:** Authenticate a user.
+
+**Request Body:**
 ```json
 {
-  "identifier": "john_doe", // Can be email or username
-  "password": "securepassword"
+  "identifier": "example@example.com", // or "exampleuser"
+  "password": "password123"
 }
 ```
 
-**Response**:
-Returns a token and user data.
-
-**Example Response**:
+**Response:**
 ```json
 {
-  "UserToken": "your.jwt.token.here",
+  "UserToken": "<JWT_TOKEN>",
   "UserData": {
-    "username": "john_doe",
-    "email": "john@example.com",
+    "username": "exampleuser",
+    "email": "example@example.com",
     "gender": "male",
     "role": "user",
-    "avatar": "https://example.com/avatar.jpg"
+    "avatar": "https://example.com/avatar.jpg",
+    "UID": "1000001",
+    "mobaCoin": 0,
+    "popularity": 0
   }
 }
 ```
 
-**Error Response**:
-- If the `identifier` or `password` is missing:
-  ```json
-  {
-    "error": " (email or username) and password are required"
-  }
-  ```
-- If the credentials are incorrect:
-  ```json
-  {
-    "error": "Wrong email, username, or password!"
-  }
-  ```
-
 ---
 
-### 5. `GET /protected`
-**Description**: Access a protected route (requires a valid token).
+## **Posts API**
+### **Create a Post**
+**Endpoint:** `POST /posts`
 
-**Headers**:
+**Description:** Create a new post with optional image or video uploads.
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Request (Form Data):**
+- **Key:** `body` (type: Text) - Content of the post.
+- **Key:** `files` (type: File) - Up to 10 files (images/videos).
+
+**Example (Postman Form-Data):**
+- `body`: `This is a post with an image.`
+- `files`: (attach an image or video file).
+
+**Response:**
 ```json
 {
-  "Authorization": "Bearer your.jwt.token.here"
+  "message": "Post created successfully",
+  "post": {
+    "id": 1,
+    "user_id": 50,
+    "body": "This is a post with an image.",
+    "files": [
+      "https://res.cloudinary.com/demo/image/upload/v1234567890/posts/image1.jpg"
+    ],
+    "created_at": "2025-05-01T12:00:00Z"
+  }
 }
 ```
 
-**Response**:
+**Error Responses:**
+- `401 Unauthorized`: `{"error": "Unauthorized: No token provided"}`
+- `400 Bad Request`: `{"error": "Body field is required"}`
+- `400 Bad Request`: `{"error": "No files were uploaded"}`
+
+---
+
+### **Delete a Post**
+**Endpoint:** `DELETE /posts/:id`
+
+**Description:** Delete a post by its ID.
+
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response:**
 ```json
 {
-  "message": "This is a protected route",
-  "userId": 1
+  "message": "Post deleted successfully"
 }
 ```
 
-**Error Response**:
-- If no token is provided:
-  ```json
-  {
-    "error": "Unauthorized"
-  }
-  ```
-- If the token is invalid:
-  ```json
-  {
-    "error": "Forbidden"
-  }
-  ```
+**Error Responses:**
+- `404 Not Found`: `{"error": "Post not found"}`
+- `403 Forbidden`: `{"error": "Forbidden: Not authorized to delete this post"}`
+- `401 Unauthorized`: `{"error": "Unauthorized: No token provided"}`
 
 ---
 
-## Authentication:
+## **Profile API**
+### **Get a User Profile**
+**Endpoint:** `GET /profile/:uid`
 
-The API uses JWT for authentication. Include the token in the `Authorization` header for protected routes.
+**Description:** Retrieve user profile information and their posts.
 
-**Example Header**:
+**Headers:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**Response:**
 ```json
 {
-  "Authorization": "Bearer your.jwt.token.here"
+  "ownerData": {
+    "id": 50,
+    "username": "exampleuser",
+    "gender": "male",
+    "role": "user",
+    "avatar": "https://example.com/avatar.jpg",
+    "uid": "1000001",
+    "popularity": 100
+  },
+  "ownerPosts": [
+    {
+      "user_id": 50,
+      "body": "This is a sample post.",
+      "files": [
+        "https://res.cloudinary.com/demo/image/upload/v1234567890/posts/image1.jpg"
+      ],
+      "created_at": "2025-05-01T12:00:00Z",
+      "updated_at": "2025-05-01T12:30:00Z"
+    }
+  ]
 }
 ```
 
----
-
-## CORS Configuration:
-- Allowed Origin: `http://localhost:3000`
-- Allowed Methods: `GET`, `POST`, `PUT`, `DELETE`
-- Credentials: Allowed
+**Error Responses:**
+- `404 Not Found`: `{"error": "User not found"}`
+- `500 Internal Server Error`: `{"error": "Internal server error: <details>"}`
 
 ---
 
-## Environment Variables:
-The following environment variables are required to run the API:
-
-| Variable        | Description                           |
-|------------------|---------------------------------------|
-| `DB_USER`       | Your PostgreSQL database username     |
-| `DB_HOST`       | Your PostgreSQL host address          |
-| `DB_NAME`       | Your PostgreSQL database name         |
-| `DB_PASSWORD`   | Your PostgreSQL password              |
-| `DB_PORT`       | Your PostgreSQL port (default: 5432)  |
-| `JWT_SECRET`    | Secret key for signing JWTs           |
+## **Error Handling**
+- **401 Unauthorized:** Token is missing or invalid.
+- **400 Bad Request:** Missing required fields or invalid input.
+- **404 Not Found:** Resource not found (e.g., user or post).
+- **500 Internal Server Error:** Unexpected server-side error.
 
 ---
 
-## Running the Server:
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the server:
-   ```bash
-   node index.js
-   ```
-3. The server will run on `http://localhost:3000`.
+## **Notes for Frontend Integration**
+1. **Authorization:**
+   - All protected routes (`/posts`, `/profile/:uid`, etc.) require a valid JWT token.
+   - The token must be included in the `Authorization` header.
+
+2. **File Uploads:**
+   - Use `multipart/form-data` for file uploads.
+   - Ensure the `files` field matches the backend configuration.
+
+3. **Date Format:**
+   - All date fields (e.g., `created_at`, `updated_at`) are in ISO 8601 format (`YYYY-MM-DDTHH:mm:ssZ`).
+
+4. **Error Responses:**
+   - Always handle error responses gracefully on the frontend. Display appropriate messages to the user based on the error type.
 
 ---
 
-Let me know if you have any questions or need further clarification!
+## **Environment Variables**
+The following environment variables must be set for the APIs to work:
+- `JWT_SECRET`: Secret key for JWT token generation.
+- `CLOUDINARY_CLOUD_NAME`: Cloudinary account name.
+- `CLOUDINARY_API_KEY`: Cloudinary API key.
+- `CLOUDINARY_API_SECRET`: Cloudinary API secret.
+
+---
+
+## **Future Enhancements**
+- Add pagination for user posts in `/profile/:uid`.
+- Add support for editing posts.
+- Implement user profile updates.
