@@ -51,7 +51,6 @@ router.post("/posts", async (req, res) => {
   }
 });
 
-export default router;
 
 router.delete("/posts/:id", async (req, res) => {
   const { id } = req.params; // Post ID to delete
