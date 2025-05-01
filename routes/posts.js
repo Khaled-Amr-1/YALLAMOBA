@@ -53,6 +53,16 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
   
       const fileUrls = req.files.map((file) => file.path); // Cloudinary returns the file URL in `file.path`
   
+      const userResult = await pool.query(
+        "SELECT username, avatar, uid FROM users WHERE id = $1",
+        [userId]
+      );
+  
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      const ownerData = userResult.rows[0]; // 
       // Insert the post into the database
       const result = await pool.query(
         "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at",
@@ -63,7 +73,8 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
   
       res.status(201).json({
         message: "Post created successfully",
-        post: newPost,
+        ownerData: ownerData,
+        postData: newPost,
       });
     } catch (error) {
       console.error("Error creating post:", error); // Log the full error
