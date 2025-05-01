@@ -47,11 +47,10 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
       console.log("Files received:", req.files); // Log files
       console.log("Body content:", req.body); // Log body content
   
-      if (!req.files) {
-        return res.status(400).json({ error: "No files were uploaded" });
+    if(req.files.length > 0) {
+      var fileUrls = req.files.map((file) => file.path); // Cloudinary returns the file URL in `file.path`
       }
   
-      const fileUrls = req.files.map((file) => file.path); // Cloudinary returns the file URL in `file.path`
   
       const userResult = await pool.query(
         "SELECT username, avatar, uid FROM users WHERE id = $1",
