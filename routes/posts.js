@@ -3,11 +3,30 @@ const router = Router();
 import pool from "../config/db.js"; // Import the pool from the config
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-router.post("/posts", async (req, res) => {
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "posts", // Folder where files will be uploaded in Cloudinary
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "mp4", "mov", "avi"], // Allowed file formats
+    resource_type: "auto", // Auto-detect file type (image or video)
+  },
+});
+
+const upload = multer({ storage });
+
+router.post("/posts", upload.array("files", 10), async (req, res) => {
   const { body } = req.body; // Extract the body field from the request
   const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Authorization header
 
@@ -23,11 +42,12 @@ router.post("/posts", async (req, res) => {
     if (!body || body.trim().length === 0) {
       return res.status(400).json({ error: "Body field is required" });
     }
+    const fileUrls = req.files.map((file) => file.path); // Cloudinary returns the file URL in `file.path`
 
     // Insert the post into the database
     const result = await pool.query(
-      "INSERT INTO posts (user_id, body) VALUES ($1, $2) RETURNING id, user_id, body, created_at",
-      [userId, body]
+      "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at",
+      [userId, body, fileUrls]
     );
 
     const newPost = result.rows[0]; // Get the newly created post
@@ -41,7 +61,6 @@ router.post("/posts", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.delete("/posts/:id", async (req, res) => {
   const { id } = req.params; // Post ID to delete
@@ -57,7 +76,10 @@ router.delete("/posts/:id", async (req, res) => {
     const userId = decoded.userId; // Extract userId from the token
 
     // Fetch the post data from the database
-    const postResult = await pool.query("SELECT user_id FROM posts WHERE id = $1", [id]);
+    const postResult = await pool.query(
+      "SELECT user_id FROM posts WHERE id = $1",
+      [id]
+    );
 
     if (postResult.rows.length === 0) {
       return res.status(404).json({ error: "Post not found" });
@@ -67,7 +89,9 @@ router.delete("/posts/:id", async (req, res) => {
 
     // Check if the user owns the post
     if (post.user_id !== userId) {
-      return res.status(403).json({ error: "Forbidden: Not authorized to delete this post" });
+      return res
+        .status(403)
+        .json({ error: "Forbidden: Not authorized to delete this post" });
     }
 
     // Delete the post
