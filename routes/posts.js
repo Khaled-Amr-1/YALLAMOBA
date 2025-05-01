@@ -2,46 +2,50 @@ import { Router } from "express";
 const router = Router();
 import pool from "../config/db.js"; // Import the pool from the config
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+
 dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET;
 
-router.get("/posts/:uid", async (req, res) => {
-    const { uid } = req.params; // Extract uid from the URL
-    const parsedUid = parseInt(uid, 10); // Convert uid to an integer
+router.post("/posts", async (req, res) => {
+  // Implementation for creating posts can go here
+});
 
-    if (isNaN(parsedUid)) { // Validate the uid
-        return res.status(400).json({ error: "ENTER VALID ID" });
+router.delete("/posts/:id", async (req, res) => {
+  const { id } = req.params; // Post ID to delete
+  const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Authorization header
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  try {
+    // Verify and decode the token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.userId; // Extract userId from the token
+
+    // Fetch the post data from the database
+    const postResult = await pool.query("SELECT user_id FROM posts WHERE id = $1", [id]);
+
+    if (postResult.rows.length === 0) {
+      return res.status(404).json({ error: "Post not found" });
     }
 
-    try {
-        // Query the posts table for posts by the given user ID (uid)
-        const postsResult = await pool.query(
-            "SELECT body, files, created_at, updated_at FROM posts WHERE user_id = $1",
-            [parsedUid] // Use the parsed uid
-        );
+    const post = postResult.rows[0];
 
-        if (postsResult.rows.length === 0) {
-            return res.status(404).json({ error: "No posts found for this user" });
-        }
-
-        // Query the users table for user details except for sensitive fields
-        const userResult = await pool.query(
-            "SELECT username, avatar, uid FROM users WHERE uid = $1",
-            [parsedUid] // Use the parsed uid
-        );
-
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        const user = userResult.rows[0]; // Get the user data
-        const posts = postsResult.rows; // Get the user's posts
-
-        // Return the posts and user data as a response
-        res.status(200).json({ userPosts: posts, ownerData: user });
-    } catch (error) {
-        console.error("Error fetching posts or user data:", error);
-        res.status(500).json({ error: "Internal server error" });
+    // Check if the user owns the post
+    if (post.user_id !== userId) {
+      return res.status(403).json({ error: "Forbidden: Not authorized to delete this post" });
     }
+
+    // Delete the post
+    await pool.query("DELETE FROM posts WHERE id = $1", [id]);
+
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export default router;
