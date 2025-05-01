@@ -7,15 +7,6 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-import { Router } from "express";
-const router = Router();
-import pool from "../config/db.js"; // Import the pool from the config
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-
-dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET;
-
 router.post("/posts", async (req, res) => {
   const { body } = req.body; // Extract the body field from the request
   const token = req.headers.authorization?.split(" ")[1]; // Extract the token from the Authorization header
