@@ -3,7 +3,7 @@ const router = Router();
 import pool from "../config/db.js"; // Import the pool from the config
 import dotenv from "dotenv";
 dotenv.config();
-
+// import jwt from "jsonwebtoken";
 router.get("/profile/:uid", async (req, res) => {
     const { uid } = req.params;
     const parsedUid = parseInt(uid, 10); // Convert uid to a number
