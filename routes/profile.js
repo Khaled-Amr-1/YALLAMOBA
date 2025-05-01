@@ -25,7 +25,7 @@ router.get("/profile/:uid", async (req, res) => {
   
       // Fetch user posts using the user's internal `id`
       const postsResult = await pool.query(
-        "SELECT id, user_id, body, files, created_at, updated_at FROM posts WHERE user_id = $1",
+        "SELECT id, body, files, created_at, updated_at FROM posts WHERE user_id = $1",
         [user.id] // Use the `id` fetched from the first query
       );
   
