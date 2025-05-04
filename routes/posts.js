@@ -96,38 +96,33 @@ router.delete("/posts/:id", async (req, res) => {
     return res.status(401).json({ error: "Unauthorized: No token provided" });
   }
 
-  try {
-    // Verify and decode the token
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const userId = decoded.userId; // Extract userId from the token
+  // Verify and decode the token
+  const decoded = jwt.verify(token, JWT_SECRET);
+  const userId = decoded.userId; // Extract userId from the token
 
-    // Fetch the post data from the database
-    const postResult = await pool.query(
-      "SELECT user_id FROM posts WHERE id = $1",
-      [id]
-    );
+  // Fetch the post data from the database
+  const postResult = await pool.query(
+    "SELECT user_id FROM posts WHERE id = $1",
+    [id]
+  );
 
-    if (postResult.rows.length === 0) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    const post = postResult.rows[0];
-
-    // Check if the user owns the post
-    if (post.user_id !== userId) {
-      return res
-        .status(403)
-        .json({ error: "Forbidden: Not authorized to delete this post" });
-    }
-
-    // Delete the post
-    await pool.query("DELETE FROM posts WHERE id = $1", [id]);
-
-    res.status(200).json({ message: "Post deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ error: "Internal server error" });
+  if (postResult.rows.length === 0) {
+    return res.status(404).json({ error: "Post not found" });
   }
+
+  const post = postResult.rows[0];
+
+  // Check if the user owns the post
+  if (post.user_id !== userId) {
+    return res
+      .status(403)
+      .json({ error: "Forbidden: Not authorized to delete this post" });
+  }
+
+  // Delete the post
+  await pool.query("DELETE FROM posts WHERE id = $1", [id]);
+
+  res.status(200).json({ message: "Post deleted successfully" });
 });
 
 export default router;

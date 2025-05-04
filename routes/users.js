@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-
 router.post("/register", async (req, res) => {
   const { username, email, password, repassword, gender, role, avatar } =
     req.body; // Added gender, role, and avatar
@@ -79,52 +78,46 @@ router.post("/login", async (req, res) => {
       .json({ error: " (email or username) and password are required" });
   }
 
-  try {
-    // Query the database to check if the identifier matches either email or username
-    const result = await pool.query(
-      "SELECT id, username, email, password, gender, role, avatar, uid, mobacoin, popularity FROM users WHERE email = $1 OR username = $1",
-      [identifier]
-    );
+  // Query the database to check if the identifier matches either email or username
+  const result = await pool.query(
+    "SELECT id, username, email, password, gender, role, avatar, uid, mobacoin, popularity FROM users WHERE email = $1 OR username = $1",
+    [identifier]
+  );
 
-    if (result.rows.length === 0) {
-      return res
-        .status(401)
-        .json({ error: "Wrong email, username, or password!" });
-    }
-
-    const user = result.rows[0]; // Extract the user data from the query result
-
-    // Verify the password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res
-        .status(401)
-        .json({ error: "Wrong email, username, or password!" });
-    }
-
-    // Generate a token for the user
-    const UserToken = jwt.sign({ userId: user.id, UID: user.uid }, JWT_SECRET, {
-      expiresIn: "3000h",
-    });
-
-    // Return the user data and the token
-    res.json({
-      UserToken,
-      UserData: {
-        username: user.username,
-        email: user.email,
-        gender: user.gender,
-        role: user.role,
-        avatar: user.avatar,
-        UID: user.uid,
-        popularity: user.popularity,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error: " + error });
+  if (result.rows.length === 0) {
+    return res
+      .status(401)
+      .json({ error: "Wrong email, username, or password!" });
   }
+
+  const user = result.rows[0]; // Extract the user data from the query result
+
+  // Verify the password
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    return res
+      .status(401)
+      .json({ error: "Wrong email, username, or password!" });
+  }
+
+  // Generate a token for the user
+  const UserToken = jwt.sign({ userId: user.id, UID: user.uid }, JWT_SECRET, {
+    expiresIn: "3000h",
+  });
+
+  // Return the user data and the token
+  res.json({
+    UserToken,
+    UserData: {
+      username: user.username,
+      email: user.email,
+      gender: user.gender,
+      role: user.role,
+      avatar: user.avatar,
+      UID: user.uid,
+      popularity: user.popularity,
+    },
+  });
 });
 
 export default router;
-
