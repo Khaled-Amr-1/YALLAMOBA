@@ -10,6 +10,11 @@ import { authenticateToken } from "./middleware/authenticateToken.js"; // Import
 
 dotenv.config();
 
+
+import { errorHandler } from "./middleware/errorHandler.js"; // Import the error handler
+
+
+
 const app = express();
 app.use(
   cors({
@@ -28,6 +33,8 @@ app.use("/api",authenticateToken, postRoutes); // Use the user routes
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route", userId: req.user.userId , uid: req.user.UID});
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
