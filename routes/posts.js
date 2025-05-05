@@ -80,7 +80,7 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
     res.status(201).json({
       message: "Post created successfully",
       ownerData: ownerData,
-      post: newPost, // return just the new post
+      newPost: newPost, // return just the new post
     });
   } catch (error) {
     console.error("Error creating post:", error); // Log the full error
