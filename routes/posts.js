@@ -69,18 +69,18 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
       [userId, body, fileUrls]
     );
 
-    // Fetch all the user's posts ordered from newest to oldest
-    const postsResult = await pool.query(
-      "SELECT id, user_id, body, files, created_at FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
-      [userId]
+    // Insert the post into the database and get the inserted post
+    const insertResult = await pool.query(
+      "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at",
+      [userId, body, fileUrls]
     );
 
-    const allPosts = postsResult.rows;
+    const newPost = insertResult.rows[0];
 
     res.status(201).json({
       message: "Post created successfully",
       ownerData: ownerData,
-      allPosts: allPosts,
+      post: newPost, // return just the new post
     });
   } catch (error) {
     console.error("Error creating post:", error); // Log the full error
