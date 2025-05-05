@@ -68,7 +68,7 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
       "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at, updated_at",
       [userId, body, fileUrls]
     );
-
+//new
     const newPost = insertResult.rows[0];
 
     res.status(201).json({
