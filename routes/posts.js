@@ -56,7 +56,7 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
       "SELECT username, avatar, uid FROM users WHERE id = $1",
       [userId]
     );
-
+//check if user exists
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
