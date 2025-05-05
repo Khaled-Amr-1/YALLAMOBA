@@ -71,7 +71,7 @@ router.post("/posts", upload.array("files", 10), async (req, res) => {
 
     // Insert the post into the database and get the inserted post
     const insertResult = await pool.query(
-      "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at",
+      "INSERT INTO posts (user_id, body, files) VALUES ($1, $2, $3) RETURNING id, user_id, body, files, created_at, updated_at",
       [userId, body, fileUrls]
     );
 
